@@ -2,6 +2,7 @@ package main;
 
 
 import java.awt.Dimension;
+
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -11,6 +12,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
+import static utilz.constants.PlayerConstants.*;
+import static utilz.constants.Directions.*;
 
 public class GamePanel extends JPanel {
 	
@@ -19,6 +22,9 @@ public class GamePanel extends JPanel {
 	private BufferedImage img;
 	private BufferedImage[][] animations;
 	private int aniTick, aniIndex, aniSpeed = 15 ;
+	private int playerAction = IDLE;
+	private int playerDir = -1;
+	private boolean moving = false;
 	
 	public GamePanel() {
 		
@@ -59,42 +65,67 @@ public class GamePanel extends JPanel {
 		
 	}
 
-	public void changeXDelta(int value) {
-		this.xDelta += value;
+	public void setDirection(int direction) {
+		this.playerDir = direction;
+		moving = true;
 		
 	}
 	
-	public void changeYDelta(int value) {
-		this.yDelta += value;
-		
-	}
-	
-	public void setRectPos(int x, int y) {
-		this.xDelta = x;
-		this.yDelta = y;
-		
+	public void setMoving(boolean moving) {
+		this.moving = moving;
 	}
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
 		updateAnimationTick();
+		setAnimation();
+		updatePos();
 		
-		g.drawImage(animations[2][aniIndex], (int)xDelta,(int) yDelta, 125, 133, null);                            
+		g.drawImage(animations[playerAction][aniIndex], (int)xDelta,(int) yDelta, 125, 133, null);                            
 	}
 	
-	private void updateAnimationTick() {
-		aniTick++;
-		if(aniTick >= aniSpeed) {
-			aniTick = 0;
-			aniIndex++;
-			if(aniIndex >= 6) {
-				aniIndex = 0;
+	private void updatePos() {
+		if(moving) {
+			switch(playerDir) {
+			case LEFT:
+				xDelta -= 5;
+				break;
+			case UP:
+				yDelta -= 5;
+				break;
+			case RIGHT:
+				xDelta += 5;
+				break;
+			case DOWN:
+				yDelta += 5;
+				break;
 			}
 		}
 		
 	}
 
+	private void setAnimation() {
+		if(moving) {
+			playerAction = RUNNING;
+		}
+		else {
+			playerAction = IDLE;
+		}
+		
+	}
+
+	private void updateAnimationTick() {
+		aniTick++;
+		if(aniTick >= aniSpeed) {
+			aniTick = 0;
+			aniIndex++;
+			if(aniIndex >= GetSpriteAmount(playerAction)) {
+				aniIndex = 0;
+			}
+		}
+		
+	}
 
 
 }
